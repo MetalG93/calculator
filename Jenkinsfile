@@ -21,5 +21,11 @@ pipeline {
                 sh './gradlew jacocoTestCoverageVerification'
            }
        }
+
+       stage("Code analysis"){
+            steps{
+                sh './gradlew checkstyleMain'
+            }
+       }
    }
 }
