@@ -1,72 +1,68 @@
 pipeline {
-   agent any
-   stages{
 
-       stage("Build"){
-           steps{
+   agent any
+
+   stages {
+
+        stage("Build") {
+            steps{
                sh 'chmod +x gradlew'
                sh './gradlew compileJava'
-           }
-       }
+            }
+        }
 
-       stage("Test"){
-           steps{
-               sh './gradlew test'
-           }
-       }
+        stage("Test") {
+            steps{
+                sh './gradlew test'
+            }
+        }
 
-       stage("Test Coverage"){
-           steps{
+        stage("Test Coverage") {
+            steps{
                 sh './gradlew jacocoTestCoverageVerification'
            }
-       }
+        }
 
-       stage("Code analysis"){
+        stage("Code analysis") {
             steps{
                 sh './gradlew checkstyleMain'
             }
        }
 
-       stage("Package"){
+        stage("Package") {
             steps{
                 sh "./gradlew build"
             }
-       }
+        }
 
-       stage("Initialize"){
-            steps{
-                def dockerHome = tool "jenkins_docker"
-                env.PATH = "${dockerHome}/bin:${env.PATH}"
-           }
-       }
-
-       stage("Docker build"){
+        stage("Docker build") {
             steps{
                 sh "docker build -t localhost:5000/calculator ."
             }
-       }
+        }
 
-       stage("Docker push"){
+        stage("Docker push") {
             steps{
                 sh "docker push localhost:5000/calculator"
             }
-       }
+        }
 
-       stage("Deploy to staging"){
+        stage("Deploy to staging") {
             steps{
                 sh "docker run -d --rm -p 8765:8080 --name calculator localhost:5000/calculator"
             }
-       }
+        }
 
-       stage("Acceptance test"){
+        stage("Acceptance test") {
             steps{
                 sleep 60
                 sh "chmod +x acceptance_test.sh && ./acceptance_test.sh"
             }
-       }
+        }
    }
-   post{
-        always{
+
+   post {
+        always {
             sh "docker stop calculator"
         }
    }
