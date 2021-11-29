@@ -11,6 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CalculatorController {
 
+    public CalculatorController(Calculator calculator){
+        this.calculator = calculator;
+    }
+
     @Autowired
     private Calculator calculator;
 
